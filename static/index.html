@@ -3,31 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <title>Cardiovascular Risk Predictor</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <h1>Cardiovascular Risk Predictor</h1>
+  <div class="app">
+    <div class="card">
+      <h1>Cardiovascular Risk Predictor</h1>
 
-  <form id="risk-form">
-    <label>Male (1/0): <input type="number" name="male" value="1"></label><br />
-    <label>Age: <input type="number" name="age" value="61"></label><br />
-    <label>Education: <input type="number" name="education" value="3"></label><br />
-    <label>Current Smoker (1/0): <input type="number" name="currentSmoker" value="1"></label><br />
-    <label>Cigs Per Day: <input type="number" name="cigsPerDay" value="20"></label><br />
-    <label>BPMeds (1/0): <input type="number" name="BPMeds" value="0"></label><br />
-    <label>Prevalent Stroke (1/0): <input type="number" name="prevalentStroke" value="0"></label><br />
-    <label>Prevalent Hyp (1/0): <input type="number" name="prevalentHyp" value="1"></label><br />
-    <label>Diabetes (1/0): <input type="number" name="diabetes" value="0"></label><br />
-    <label>Total Chol: <input type="number" name="totChol" value="250"></label><br />
-    <label>Systolic BP: <input type="number" name="sysBP" value="150"></label><br />
-    <label>Diastolic BP: <input type="number" name="diaBP" value="95"></label><br />
-    <label>BMI: <input type="number" step="0.1" name="BMI" value="29.5"></label><br />
-    <label>Heart Rate: <input type="number" name="heartRate" value="75"></label><br />
-    <label>Glucose: <input type="number" name="glucose" value="100"></label><br />
+      <form id="risk-form">
+        <div class="field">
+          <label for="male">Sex</label>
+          <select id="male" name="male">
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </div>
 
-    <button type="submit">Calculate Risk</button>
-  </form>
+        <div class="field">
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" value="61">
+        </div>
 
-  <div id="result"></div>
+        <div class="field">
+          <div class="field">
+            <label for="education">Education</label>
+            <select id="education" name="education">
+              <option value="1">Some high school</option>
+              <option value="2">High school / GED</option>
+              <option value="3" selected>Some college / vocational</option>
+              <option value="4">College or more</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="currentSmoker">Current smoker</label>
+            <select id="currentSmoker" name="currentSmoker">
+              <option value="1" selected>Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+
+        <div class="field">
+          <label for="cigsPerDay">Cigs Per Day</label>
+          <input type="number" id="cigsPerDay" name="cigsPerDay" value="20">
+        </div>
+
+        <div class="field">
+          <label for="BPMeds">On blood pressure meds</label>
+          <select id="BPMeds" name="BPMeds">
+            <option value="1">Yes</option>
+            <option value="0" selected>No</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="prevalentStroke">History of stroke</label>
+          <select id="prevalentStroke" name="prevalentStroke">
+            <option value="1">Yes</option>
+            <option value="0" selected>No</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="prevalentHyp">Diagnosed hypertension</label>
+          <select id="prevalentHyp" name="prevalentHyp">
+            <option value="1" selected>Yes</option>
+            <option value="0">No</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="diabetes">Diabetes</label>
+          <select id="diabetes" name="diabetes">
+            <option value="1">Yes</option>
+            <option value="0" selected>No</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="totChol">Total Chol</label>
+          <input type="number" id="totChol" name="totChol" value="250">
+        </div>
+
+        <div class="field">
+          <label for="sysBP">Systolic BP</label>
+          <input type="number" id="sysBP" name="sysBP" value="150">
+        </div>
+
+        <div class="field">
+          <label for="diaBP">Diastolic BP</label>
+          <input type="number" id="diaBP" name="diaBP" value="95">
+        </div>
+
+        <div class="field">
+          <label for="BMI">BMI</label>
+          <input type="number" step="0.1" id="BMI" name="BMI" value="29.5">
+        </div>
+
+        <div class="field">
+          <label for="heartRate">Heart Rate</label>
+          <input type="number" id="heartRate" name="heartRate" value="75">
+        </div>
+
+        <div class="field">
+          <label for="glucose">Glucose</label>
+          <input type="number" id="glucose" name="glucose" value="100">
+        </div>
+
+        <button type="submit">Calculate Risk</button>
+      </form>
+
+      <div id="result"></div>
+
+      <p class="disclaimer">Demo only. Not medical advice.</p>
+    </div>
+  </div>
 
   <script>
     const form = document.getElementById('risk-form');
@@ -39,24 +129,26 @@
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
 
-      // Convert everything to numbers
       for (const key in payload) {
         payload[key] = Number(payload[key]);
       }
 
-      const res = await fetch('http://127.0.0.1:8000/predict', {
+      const res = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
+      const riskClass = data.risk_level.toLowerCase(); // low|moderate|high
 
       resultDiv.innerHTML = `
-        <h2>Risk Level: ${data.risk_level}</h2>
-        <p>Risk Score: ${(data.risk_score * 100).toFixed(1)}%</p>
-        <h3>Top Factors:</h3>
-        <ul>${data.top_factors.map(f => `<li>${f}</li>`).join('')}</ul>
+        <div class="result-card result-${riskClass}">
+          <h2>Risk Level: ${data.risk_level}</h2>
+          <p>Risk Score: ${(data.risk_score * 100).toFixed(1)}%</p>
+          <h3>Top Factors</h3>
+          <ul>${data.top_factors.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
       `;
     });
   </script>
