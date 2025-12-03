@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Cardiovascular Risk Predictor</title>
+</head>
+<body>
+  <h1>Cardiovascular Risk Predictor</h1>
+
+  <form id="risk-form">
+    <label>Male (1/0): <input type="number" name="male" value="1"></label><br />
+    <label>Age: <input type="number" name="age" value="61"></label><br />
+    <label>Education: <input type="number" name="education" value="3"></label><br />
+    <label>Current Smoker (1/0): <input type="number" name="currentSmoker" value="1"></label><br />
+    <label>Cigs Per Day: <input type="number" name="cigsPerDay" value="20"></label><br />
+    <label>BPMeds (1/0): <input type="number" name="BPMeds" value="0"></label><br />
+    <label>Prevalent Stroke (1/0): <input type="number" name="prevalentStroke" value="0"></label><br />
+    <label>Prevalent Hyp (1/0): <input type="number" name="prevalentHyp" value="1"></label><br />
+    <label>Diabetes (1/0): <input type="number" name="diabetes" value="0"></label><br />
+    <label>Total Chol: <input type="number" name="totChol" value="250"></label><br />
+    <label>Systolic BP: <input type="number" name="sysBP" value="150"></label><br />
+    <label>Diastolic BP: <input type="number" name="diaBP" value="95"></label><br />
+    <label>BMI: <input type="number" step="0.1" name="BMI" value="29.5"></label><br />
+    <label>Heart Rate: <input type="number" name="heartRate" value="75"></label><br />
+    <label>Glucose: <input type="number" name="glucose" value="100"></label><br />
+
+    <button type="submit">Calculate Risk</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('risk-form');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      // Convert everything to numbers
+      for (const key in payload) {
+        payload[key] = Number(payload[key]);
+      }
+
+      const res = await fetch('http://127.0.0.1:8000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      resultDiv.innerHTML = `
+        <h2>Risk Level: ${data.risk_level}</h2>
+        <p>Risk Score: ${(data.risk_score * 100).toFixed(1)}%</p>
+        <h3>Top Factors:</h3>
+        <ul>${data.top_factors.map(f => `<li>${f}</li>`).join('')}</ul>
+      `;
+    });
+  </script>
+</body>
+</html>
