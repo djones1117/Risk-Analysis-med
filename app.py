@@ -5,6 +5,8 @@ import joblib
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from risk_explainer import explain_risk
@@ -26,9 +28,10 @@ app = FastAPI(
 
 
 origins = [
-    "http://127.0.0.1:5501",
-    "http://localhost:5501",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +40,8 @@ app.add_middleware(
     allow_methods=["*"],   
     allow_headers=["*"],
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 class PatientInput(BaseModel):
@@ -64,15 +69,21 @@ class RiskOutput(BaseModel):
 
 @app.get("/")
 def root():
+    return FileResponse("static/index.html")
+
+@app.get("/api/health")
+def health():
     return {"status": "ok", "message": "Cardiovascular Risk Prediction API"}
 
 @app.post("/predict", response_model=RiskOutput)
 def predict_risk(patient: PatientInput):
     # Convert request to dict
+        
     patient_dict = patient.model_dump()
 
-     # Build feature vector as DataFrame with proper column names
+    # Build feature vector as DataFrame with proper column names
     X = pd.DataFrame([patient_dict])[feature_cols]
+
 
     # Probability of positive class (TenYearCHD = 1)
     proba = float(pipeline.predict_proba(X)[0][1])
