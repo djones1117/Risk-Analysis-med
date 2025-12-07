@@ -14,6 +14,13 @@ A small end-to-end ML project that predicts **10-year coronary heart disease (CH
 
 ---
 
+## Live Demo
+
+- Web UI: https://risk-analysis-ml.onrender.com  
+- Health check: https://risk-analysis-ml.onrender.com/api/health  
+- Predict endpoint: `POST https://risk-analysis-ml.onrender.com/predict`
+
+
 ## 1. Tech Stack
 
 **ML / Data**
@@ -196,7 +203,7 @@ You can also hit the API directly from the command line.
 
 ### 8.1. Example request
 
-    curl -X POST "http://127.0.0.1:8000/predict" \
+    curl -X POST "https://risk-analysis-ml.onrender.com/predict" \
       -H "Content-Type: application/json" \
       -d '{
         "male": 1,
@@ -351,12 +358,23 @@ Quick recap to run everything:
 
     curl -X POST http://127.0.0.1:8000/predict ...
 
-## 14. Screenshots
+
+
+---
+
+## 14. Deployment (Docker + Render)
+
+- The app is containerized using the `Dockerfile` in the project root.
+- The image runs `uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}`.
+- Deployed as a Render Web Service using the Dockerfile (no extra build commands).
+
+
+## 15. Screenshots
 
 ![Cardiovascular Risk Predictor UI](static/interface.png)
-```
-when you run python3 train_model.py 
-```
-![training model output](static/readmeai.png)
+
+Output when running `python3 train_model.py`:
+
+![Training model output](static/readmeai.png)
 
 
